@@ -1,0 +1,15 @@
+node_modules/
+dist/
+dist-server/
+tokens.json
+.msal-cache-*.json
+certs/
+.env
+.env.local
+.env.*.local
+*.js.map
+.DS_Store
+*.log
+npm-debug.log*
+.vscode/
+.idea/

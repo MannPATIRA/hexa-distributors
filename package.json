@@ -1,0 +1,41 @@
+{
+  "name": "hexa-procurement",
+  "version": "1.0.0",
+  "description": "Hexa Procurement — Outlook add-in for distributor procurement workflows",
+  "main": "src/server/index.ts",
+  "scripts": {
+    "start": "ts-node src/server/index.ts",
+    "build": "webpack --mode production",
+    "dev": "ts-node src/server/index.ts"
+  },
+  "dependencies": {
+    "@azure/msal-node": "^2.16.2",
+    "@microsoft/microsoft-graph-client": "^3.0.7",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "office-addin-dev-certs": "^1.13.5",
+    "open": "^8.4.2",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "uuid": "^11.0.5"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@types/node": "^25.2.3",
+    "@types/office-js": "^1.0.574",
+    "@types/react": "^18.3.18",
+    "@types/react-dom": "^18.3.5",
+    "@types/uuid": "^10.0.0",
+    "@types/webpack-hot-middleware": "^2.25.12",
+    "css-loader": "^7.1.2",
+    "html-webpack-plugin": "^5.6.3",
+    "style-loader": "^4.0.0",
+    "ts-loader": "^9.5.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.3",
+    "webpack": "^5.97.1",
+    "webpack-cli": "^6.0.1",
+    "webpack-dev-middleware": "^7.4.2",
+    "webpack-hot-middleware": "^2.26.1"
+  }
+}
