@@ -30,6 +30,11 @@ app.use("/api/simulation", simulationRoutes);
 // Static assets (icons) — serves from /assets in both local and Vercel
 app.use("/assets", express.static(path.join(__dirname, "../../assets")));
 
+// Serve manifest.xml so it can be added via URL in M365 admin center
+app.get("/manifest.xml", (_req, res) => {
+  res.sendFile(path.join(__dirname, "../../manifest.xml"));
+});
+
 // 404 handler for API routes
 app.use("/api/*", (_req: Request, res: Response) => {
   res.status(404).json({ error: "Endpoint not found" });

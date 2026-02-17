@@ -8,8 +8,8 @@
   <DefaultLocale>en-US</DefaultLocale>
   <DisplayName DefaultValue="Hexa Procurement"/>
   <Description DefaultValue="Automated procurement workflows for distributors"/>
-  <IconUrl DefaultValue="https://localhost:3000/assets/icon-32.png"/>
-  <HighResolutionIconUrl DefaultValue="https://localhost:3000/assets/icon-80.png"/>
+  <IconUrl DefaultValue="https://hexa-distributors.vercel.app/assets/icon-32.png"/>
+  <HighResolutionIconUrl DefaultValue="https://hexa-distributors.vercel.app/assets/icon-80.png"/>
   <SupportUrl DefaultValue="https://hexa.ai"/>
 
   <Hosts>
@@ -25,7 +25,7 @@
   <FormSettings>
     <Form xsi:type="ItemRead">
       <DesktopSettings>
-        <SourceLocation DefaultValue="https://localhost:3000/taskpane.html"/>
+        <SourceLocation DefaultValue="https://hexa-distributors.vercel.app/taskpane.html"/>
         <RequestedHeight>450</RequestedHeight>
       </DesktopSettings>
     </Form>
@@ -68,6 +68,7 @@
                     </Icon>
                     <Action xsi:type="ShowTaskpane">
                       <SourceLocation resid="taskpaneUrl"/>
+                      <SupportsPinning>true</SupportsPinning>
                     </Action>
                   </Control>
                 </Group>
@@ -91,6 +92,7 @@
                     </Icon>
                     <Action xsi:type="ShowTaskpane">
                       <SourceLocation resid="taskpaneUrl"/>
+                      <SupportsPinning>true</SupportsPinning>
                     </Action>
                   </Control>
                 </Group>
@@ -102,12 +104,12 @@
 
       <Resources>
         <bt:Images>
-          <bt:Image id="icon16" DefaultValue="https://localhost:3000/assets/icon-16.png"/>
-          <bt:Image id="icon32" DefaultValue="https://localhost:3000/assets/icon-32.png"/>
-          <bt:Image id="icon80" DefaultValue="https://localhost:3000/assets/icon-80.png"/>
+          <bt:Image id="icon16" DefaultValue="https://hexa-distributors.vercel.app/assets/icon-16.png"/>
+          <bt:Image id="icon32" DefaultValue="https://hexa-distributors.vercel.app/assets/icon-32.png"/>
+          <bt:Image id="icon80" DefaultValue="https://hexa-distributors.vercel.app/assets/icon-80.png"/>
         </bt:Images>
         <bt:Urls>
-          <bt:Url id="taskpaneUrl" DefaultValue="https://localhost:3000/taskpane.html"/>
+          <bt:Url id="taskpaneUrl" DefaultValue="https://hexa-distributors.vercel.app/taskpane.html"/>
         </bt:Urls>
         <bt:ShortStrings>
           <bt:String id="groupLabel" DefaultValue="Hexa"/>
