@@ -275,10 +275,10 @@ export function scheduleSupplierReplies(rfq: RFQ): void {
         const buyerName = process.env.BUYER_NAME || "James Cooper";
 
         await sendEmailAsSupplier({
-          subject: `RE: ${rfq.referenceNumber} — Request for Quotation`,
+          subject: `[${supplier.name}] RE: ${rfq.referenceNumber} — Request for Quotation`,
           body: bodyHtml,
           toRecipients: [{ name: buyerName, email: buyerEmail }],
-          fromName: supplier.contactName,
+          fromName: supplier.name,
         });
 
         // Update RFQ supplier status

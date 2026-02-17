@@ -9,15 +9,19 @@ import {
 import fs from "fs";
 import path from "path";
 
-const TOKENS_PATH = path.join(__dirname, "../../../tokens.json");
-const MSAL_CACHE_BUYER_PATH = path.join(__dirname, "../../../.msal-cache-buyer.json");
-const MSAL_CACHE_SUPPLIER_PATH = path.join(__dirname, "../../../.msal-cache-supplier.json");
+const IS_VERCEL = process.env.VERCEL === "1";
+const CACHE_DIR = IS_VERCEL ? "/tmp" : path.join(__dirname, "../../..");
+
+const TOKENS_PATH = path.join(CACHE_DIR, "tokens.json");
+const MSAL_CACHE_BUYER_PATH = path.join(CACHE_DIR, ".msal-cache-buyer.json");
+const MSAL_CACHE_SUPPLIER_PATH = path.join(CACHE_DIR, ".msal-cache-supplier.json");
 
 const SCOPES = ["Mail.Send", "Mail.Read", "Mail.ReadWrite", "User.Read"];
 
 const PORT = process.env.PORT || "3000";
-const REDIRECT_URI_BUYER = `https://localhost:${PORT}/auth/callback`;
-const REDIRECT_URI_SUPPLIER = `https://localhost:${PORT}/auth/supplier-callback`;
+const BASE_URL = process.env.BASE_URL || `https://localhost:${PORT}`;
+const REDIRECT_URI_BUYER = `${BASE_URL}/auth/callback`;
+const REDIRECT_URI_SUPPLIER = `${BASE_URL}/auth/supplier-callback`;
 
 interface TokenCache {
   buyer?: { account?: any };
@@ -37,10 +41,11 @@ function getMsalConfig(): Configuration {
   if (!clientId) {
     throw new Error("AZURE_CLIENT_ID is not set in .env");
   }
+  const authority = process.env.MSAL_AUTHORITY || "https://login.microsoftonline.com/consumers";
   return {
     auth: {
       clientId,
-      authority: "https://login.microsoftonline.com/consumers",
+      authority,
     },
   };
 }
@@ -232,6 +237,7 @@ async function sendEmailViaGraph(
     subject: string;
     body: string;
     toRecipients: { name: string; email: string }[];
+    fromName?: string;
   }
 ): Promise<void> {
   const graphPayload: any = {
@@ -244,6 +250,15 @@ async function sendEmailViaGraph(
     },
     saveToSentItems: true,
   };
+
+  if (message.fromName) {
+    graphPayload.message.from = {
+      emailAddress: {
+        name: message.fromName,
+        address: process.env.SUPPLIER_SIM_EMAIL || "",
+      },
+    };
+  }
 
   const response = await fetch("https://graph.microsoft.com/v1.0/me/sendMail", {
     method: "POST",
@@ -278,5 +293,10 @@ export async function sendEmailAsSupplier(message: {
 }): Promise<void> {
   const token = await getSupplierAccessToken();
   if (!token) throw new Error("Supplier sim not authenticated. Visit https://localhost:3000/auth/login/supplier");
-  await sendEmailViaGraph(token, message);
+  await sendEmailViaGraph(token, {
+    subject: message.subject,
+    body: message.body,
+    toRecipients: message.toRecipients,
+    fromName: message.fromName,
+  });
 }

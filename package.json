@@ -5,7 +5,7 @@
   "main": "src/server/index.ts",
   "scripts": {
     "start": "ts-node src/server/index.ts",
-    "build": "webpack --mode production",
+    "build": "webpack --mode production && cp -r assets dist/assets",
     "dev": "ts-node src/server/index.ts"
   },
   "dependencies": {
