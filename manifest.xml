@@ -2,7 +2,7 @@
 <OfficeApp xmlns="http://schemas.microsoft.com/office/appforoffice/1.1"
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xsi:type="MailApp">
-  <Id>a1b2c3d4-e5f6-7890-abcd-ef1234567890</Id>
+  <Id>9c5875b4-b1d4-4ca2-bcea-a966a67c9481</Id>
   <Version>1.0.0</Version>
   <ProviderName>Hexa</ProviderName>
   <DefaultLocale>en-US</DefaultLocale>
