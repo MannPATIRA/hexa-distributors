@@ -114,7 +114,7 @@ export default function OrderTracker({ navigate, goBack }: Props) {
               >
                 <div>
                   <div style={{ fontWeight: 600, fontSize: 13 }}>{order.poNumber}</div>
-                  <div style={{ fontSize: 12, color: "var(--grey-600)" }}>
+                  <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
                     {order.supplierName}
                   </div>
                 </div>
@@ -124,7 +124,7 @@ export default function OrderTracker({ navigate, goBack }: Props) {
                 </span>
               </div>
 
-              <div style={{ fontSize: 11, color: "var(--grey-500)", marginBottom: 6 }}>
+              <div style={{ fontSize: 11, color: "var(--text-muted)", marginBottom: 6 }}>
                 {order.items.map((it) => `${it.name} ×${it.qty}`).join(", ")}
               </div>
 

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import type { Screen } from "../App";
 import api from "../utils/api";
 import { useToast } from "../utils/toast";
+import ItemPicker from "./ItemPicker";
 
 interface Product {
   sku: string;
@@ -48,7 +49,7 @@ export default function RFQBuilder({ initialSkus, navigate, goBack }: Props) {
   const [notes, setNotes] = useState("");
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
-  const [showAddItem, setShowAddItem] = useState(false);
+  const [showPicker, setShowPicker] = useState(false);
 
   useEffect(() => {
     Promise.all([
@@ -110,7 +111,6 @@ export default function RFQBuilder({ initialSkus, navigate, goBack }: Props) {
       ...prev,
       { sku: p.sku, name: p.name, qty: p.reorderQty, unit: p.unit },
     ]);
-    setShowAddItem(false);
   };
 
   const handleSend = async () => {
@@ -143,10 +143,6 @@ export default function RFQBuilder({ initialSkus, navigate, goBack }: Props) {
     );
   }
 
-  const availableToAdd = allProducts.filter(
-    (p) => !items.find((it) => it.sku === p.sku)
-  );
-
   return (
     <div className="fade-in">
       <div className="hexa-header">
@@ -162,7 +158,7 @@ export default function RFQBuilder({ initialSkus, navigate, goBack }: Props) {
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start" }}>
               <div>
                 <div style={{ fontWeight: 500, fontSize: 13 }}>{item.name}</div>
-                <div style={{ fontSize: 11, color: "var(--grey-500)" }}>{item.sku}</div>
+                <div style={{ fontSize: 11, color: "var(--text-muted)" }}>{item.sku}</div>
               </div>
               <button
                 className="btn btn-sm"
@@ -186,30 +182,22 @@ export default function RFQBuilder({ initialSkus, navigate, goBack }: Props) {
           </div>
         ))}
 
-        {showAddItem ? (
-          <div className="detail-card">
-            <div className="form-label">Add item</div>
-            <select
-              className="form-select"
-              onChange={(e) => addItem(e.target.value)}
-              defaultValue=""
-            >
-              <option value="" disabled>Select item...</option>
-              {availableToAdd.map((p) => (
-                <option key={p.sku} value={p.sku}>
-                  {p.name} ({p.sku})
-                </option>
-              ))}
-            </select>
-          </div>
-        ) : (
-          <button
-            className="btn btn-outline btn-sm"
-            onClick={() => setShowAddItem(true)}
-            style={{ marginBottom: 16 }}
-          >
-            + Add Another Item
-          </button>
+        <button
+          className="btn btn-outline btn-sm"
+          onClick={() => setShowPicker(true)}
+          style={{ marginBottom: 16 }}
+        >
+          + Add Item
+        </button>
+
+        {showPicker && (
+          <ItemPicker
+            currentSkus={items.map((it) => it.sku)}
+            allProducts={allProducts}
+            allSuppliers={allSuppliers}
+            onAdd={addItem}
+            onClose={() => setShowPicker(false)}
+          />
         )}
 
         {/* Requirements Section */}

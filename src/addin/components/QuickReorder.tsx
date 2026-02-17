@@ -128,7 +128,7 @@ export default function QuickReorder({ sku, supplierId, navigate, goBack }: Prop
         <div className="section" style={{ textAlign: "center" }}>
           <div style={{ fontSize: 40, marginBottom: 12 }}>✓</div>
           <div className="section-heading">Purchase Order Sent</div>
-          <p style={{ color: "var(--grey-600)", marginBottom: 16 }}>
+          <p style={{ color: "var(--text-secondary)", marginBottom: 16 }}>
             PO has been emailed to {selectedSupplier?.contactName} at{" "}
             {selectedSupplier?.name}.
           </p>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import Dashboard from "./components/Dashboard";
 import ItemDetail from "./components/ItemDetail";
 import QuickReorder from "./components/QuickReorder";
@@ -9,6 +9,7 @@ import QuoteComparison from "./components/QuoteComparison";
 import AwardOrder from "./components/AwardOrder";
 import OrderTracker from "./components/OrderTracker";
 import Settings from "./components/Settings";
+import QuoteDetail from "./components/QuoteDetail";
 
 export type Screen =
   | { name: "dashboard" }
@@ -17,6 +18,7 @@ export type Screen =
   | { name: "rfq-builder"; skus?: string[] }
   | { name: "rfq-tracker"; rfqId?: string }
   | { name: "quote-capture"; rfqId: string; emailBody?: string; senderEmail?: string }
+  | { name: "quote-detail"; rfqId: string; supplierId?: string }
   | { name: "quote-comparison"; rfqId: string }
   | { name: "award-order"; rfqId: string; supplierId: string }
   | { name: "order-tracker" }
@@ -44,27 +46,74 @@ export default function App() {
     });
   }, []);
 
+  // Track which email subject was last detected to avoid re-triggering
+  const lastDetectedSubject = useRef<string>("");
+  const navigateRef = useRef(navigate);
+  navigateRef.current = navigate;
+
   // Office.js: detect when user reads a supplier reply email
   useEffect(() => {
     if (typeof Office === "undefined") return;
+
+    const checkCurrentEmail = () => {
+      try {
+        const item = Office.context.mailbox?.item as Office.MessageRead | undefined;
+        if (!item) return;
+
+        const subject: string = (item.subject as unknown as string) || "";
+
+        // Only trigger if this is a different email than last time
+        if (subject === lastDetectedSubject.current) return;
+
+        const rfqMatch = subject.match(/RE:\s*(RFQ-\d+)/i);
+        if (rfqMatch) {
+          lastDetectedSubject.current = subject;
+          navigateRef.current({
+            name: "quote-detail",
+            rfqId: rfqMatch[1],
+          });
+        }
+      } catch {
+        // Office.js not available
+      }
+    };
+
     try {
       Office.context.mailbox?.addHandlerAsync(
         Office.EventType.ItemChanged,
-        () => detectQuoteEmail(navigate)
+        () => {
+          // Reset tracking so the new email gets detected
+          lastDetectedSubject.current = "";
+          checkCurrentEmail();
+        }
       );
-      // Also check the current item on load
-      detectQuoteEmail(navigate);
+      // Check current item on initial load only
+      checkCurrentEmail();
     } catch {
-      // Office.js may not be available in all contexts
+      // Office.js may not be available
     }
-  }, [navigate]);
+  }, []); // Empty deps — only runs once on mount
 
   const canGoBack = history.length > 0;
 
   const screenName = screen.name;
 
+  const themeMap: Record<string, string> = {
+    dashboard: "theme-blue",
+    "item-detail": "theme-blue",
+    "quick-reorder": "theme-emerald",
+    "rfq-builder": "theme-indigo",
+    "rfq-tracker": "theme-violet",
+    "quote-capture": "theme-teal",
+    "quote-detail": "theme-cyan",
+    "quote-comparison": "theme-amber",
+    "award-order": "theme-emerald",
+    "order-tracker": "theme-blue",
+    settings: "theme-slate",
+  };
+
   return (
-    <div className="hexa-app">
+    <div className={`hexa-app ${themeMap[screenName] || "theme-blue"}`}>
       {screenName === "dashboard" && <Dashboard navigate={navigate} />}
       {screenName === "item-detail" && (
         <ItemDetail
@@ -104,6 +153,14 @@ export default function App() {
           goBack={goBack}
         />
       )}
+      {screenName === "quote-detail" && (
+        <QuoteDetail
+          rfqId={(screen as any).rfqId}
+          supplierId={(screen as any).supplierId}
+          navigate={navigate}
+          goBack={goBack}
+        />
+      )}
       {screenName === "quote-comparison" && (
         <QuoteComparison
           rfqId={(screen as any).rfqId}
@@ -129,30 +186,3 @@ export default function App() {
   );
 }
 
-function detectQuoteEmail(navigate: (s: Screen) => void) {
-  try {
-    const item = Office.context.mailbox?.item as Office.MessageRead | undefined;
-    if (!item) return;
-
-    // In read mode, subject is a string property
-    const subject: string = (item.subject as unknown as string) || "";
-    const rfqMatch = subject.match(/RE:\s*(RFQ-\d+)/i);
-    if (!rfqMatch) return;
-
-    item.body.getAsync(Office.CoercionType.Html, (bodyResult) => {
-      if (bodyResult.status !== Office.AsyncResultStatus.Succeeded) return;
-      const emailBody: string = bodyResult.value || "";
-
-      const from = item.from;
-      const senderEmail = from?.emailAddress || "";
-      navigate({
-        name: "quote-capture",
-        rfqId: rfqMatch[1],
-        emailBody,
-        senderEmail,
-      });
-    });
-  } catch {
-    // Office.js not available
-  }
-}

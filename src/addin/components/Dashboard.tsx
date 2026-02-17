@@ -24,7 +24,7 @@ export default function Dashboard({ navigate }: Props) {
   const [items, setItems] = useState<ReorderItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [rfqCount, setRfqCount] = useState(0);
-  const [orderCount, setOrderCount] = useState(0);
+  const [pendingOrders, setPendingOrders] = useState(0);
 
   useEffect(() => {
     Promise.all([
@@ -34,35 +34,49 @@ export default function Dashboard({ navigate }: Props) {
     ]).then(([reorders, rfqs, orders]) => {
       setItems(reorders);
       setRfqCount(rfqs.filter((r: any) => r.status === "active").length);
-      setOrderCount(orders.filter((o: any) =>
-        o.status !== "delivered" &&
-        new Date(o.expectedDelivery) < new Date()
-      ).length);
+      setPendingOrders(orders.filter((o: any) => o.status !== "delivered").length);
       setLoading(false);
     }).catch(() => setLoading(false));
   }, []);
 
   const criticalCount = items.filter((i) => i.urgency === "critical").length;
+  const criticalItems = items.filter((i) => i.urgency === "critical");
+  const warningItems = items.filter((i) => i.urgency === "warning");
+  const normalItems = items.filter((i) => i.urgency === "normal");
+
+  const renderItems = (list: ReorderItem[]) =>
+    list.map((item) => (
+      <div
+        key={item.sku}
+        className="reorder-item"
+        onClick={() => navigate({ name: "item-detail", sku: item.sku })}
+      >
+        <div className="item-info">
+          <div className="item-name">{item.name}</div>
+          <div className="item-meta">
+            {item.sku} · {item.lastSupplierName || "No supplier"}{" "}
+            {item.lastUnitPrice !== null
+              ? `· £${item.lastUnitPrice.toFixed(2)}`
+              : ""}
+          </div>
+        </div>
+        <div className="item-stock">
+          <div className="stock-numbers">
+            {item.currentStock} / {item.reorderPoint}
+          </div>
+          <div className="stock-label">stock / ROP</div>
+        </div>
+      </div>
+    ));
 
   return (
     <div className="fade-in">
-      {/* Logo Header */}
-      <div className="hexa-logo">
-        <div className="logo-mark">H</div>
-        <div className="logo-text">Hexa</div>
-        <div className="logo-sub">Procurement</div>
+      {/* Header */}
+      <div className="hexa-header">
+        <h1>Dashboard</h1>
         <button
           onClick={() => navigate({ name: "settings" })}
-          style={{
-            marginLeft: "auto",
-            background: "none",
-            border: "none",
-            cursor: "pointer",
-            fontSize: 18,
-            color: "var(--grey-500)",
-            padding: "4px 2px",
-            lineHeight: 1,
-          }}
+          className="back-btn"
           title="Settings"
         >
           ⚙
@@ -80,10 +94,10 @@ export default function Dashboard({ navigate }: Props) {
           <div className="card-number">{loading ? "—" : rfqCount}</div>
           <div className="card-label">Active RFQs</div>
         </div>
-        <div className={`summary-card ${orderCount > 0 ? "has-critical" : ""}`}
+        <div className="summary-card"
              onClick={() => navigate({ name: "order-tracker" })}>
-          <div className="card-number">{loading ? "—" : orderCount}</div>
-          <div className="card-label">Orders Overdue</div>
+          <div className="card-number">{loading ? "—" : pendingOrders}</div>
+          <div className="card-label">Awaiting Delivery</div>
         </div>
       </div>
 
@@ -95,46 +109,33 @@ export default function Dashboard({ navigate }: Props) {
             <div className="skeleton skeleton-card" />
             <div className="skeleton skeleton-card" />
             <div className="skeleton skeleton-card" />
-            <div className="skeleton skeleton-card" />
           </>
         ) : items.length === 0 ? (
           <div className="empty-state">
             <div className="empty-icon">✓</div>
-            <div className="empty-text">All stock levels are healthy</div>
+            <div className="empty-text">All items ordered or in stock</div>
           </div>
         ) : (
-          items.map((item) => (
-            <div
-              key={item.sku}
-              className="reorder-item"
-              onClick={() => navigate({ name: "item-detail", sku: item.sku })}
-            >
-              <div
-                className={`status-dot ${
-                  item.urgency === "critical"
-                    ? "critical"
-                    : item.urgency === "warning"
-                    ? "warning"
-                    : "ok"
-                }`}
-              />
-              <div className="item-info">
-                <div className="item-name">{item.name}</div>
-                <div className="item-meta">
-                  {item.sku} · {item.lastSupplierName || "No supplier"}{" "}
-                  {item.lastUnitPrice !== null
-                    ? `· £${item.lastUnitPrice.toFixed(2)}`
-                    : ""}
-                </div>
+          <>
+            {criticalItems.length > 0 && (
+              <div className="urgency-section">
+                <div className="urgency-section-header critical">Critical</div>
+                {renderItems(criticalItems)}
               </div>
-              <div className="item-stock">
-                <div className="stock-numbers">
-                  {item.currentStock} / {item.reorderPoint}
-                </div>
-                <div className="stock-label">stock / ROP</div>
+            )}
+            {warningItems.length > 0 && (
+              <div className="urgency-section">
+                <div className="urgency-section-header warning">Low Stock</div>
+                {renderItems(warningItems)}
               </div>
-            </div>
-          ))
+            )}
+            {normalItems.length > 0 && (
+              <div className="urgency-section">
+                <div className="urgency-section-header normal">Reorder Soon</div>
+                {renderItems(normalItems)}
+              </div>
+            )}
+          </>
         )}
       </div>
 

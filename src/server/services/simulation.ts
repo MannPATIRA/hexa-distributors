@@ -1,4 +1,5 @@
-import { RFQ, store, SimulationTask } from "../store";
+import { v4 as uuid } from "uuid";
+import { RFQ, store, SimulationTask, Quote } from "../store";
 import { getSupplier, Supplier } from "../data/suppliers";
 import { getHistoryForProductAndSupplier } from "../data/priceHistory";
 import { sendEmailAsSupplier } from "./graph";
@@ -282,20 +283,48 @@ export function scheduleSupplierReplies(rfq: RFQ): void {
 
         // Update RFQ supplier status
         const currentRfq = store.rfqs.get(rfq.id);
+        const now = new Date().toISOString();
         if (currentRfq) {
           const ss = currentRfq.suppliers.find(
             (s) => s.supplierId === supplierStatus.supplierId
           );
           if (ss) {
             ss.status = "responded";
-            ss.respondedAt = new Date().toISOString();
+            ss.respondedAt = now;
           }
         }
 
+        // Auto-capture the quote into the store (we have the structured data)
+        const sentAt = new Date(supplierStatus.sentAt).getTime();
+        const responseTimeHours = Math.round((Date.now() - sentAt) / 3600000 * 10) / 10;
+
+        const capturedQuote: Quote = {
+          id: uuid(),
+          rfqId: rfq.id,
+          supplierId: supplier.id,
+          supplierName: supplier.name,
+          items: quote.items.map((it) => ({
+            sku: rfq.items.find((ri) => ri.name === it.name)?.sku || it.sku,
+            name: it.name,
+            qty: it.qty,
+            unitPrice: it.unitPrice,
+            total: it.total,
+          })),
+          subtotal: quote.subtotal,
+          deliveryCost: quote.deliveryCost,
+          landedTotal: quote.subtotal + quote.deliveryCost,
+          leadTimeDays: quote.leadTimeDays,
+          paymentTerms: quote.paymentTerms,
+          validity: quote.validity,
+          capturedAt: now,
+          responseTimeHours,
+        };
+        store.quotes.set(capturedQuote.id, capturedQuote);
+
         task.status = "sent";
-        task.sentAt = new Date().toISOString();
+        task.sentAt = now;
         console.log(
-          `[Simulation] Sent reply from ${supplier.name} for ${rfq.referenceNumber}`
+          `[Simulation] Sent reply from ${supplier.name} for ${rfq.referenceNumber} (quote auto-captured)`
         );
       } catch (err: any) {
         task.status = "failed";

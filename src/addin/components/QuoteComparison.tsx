@@ -136,176 +136,121 @@ export default function QuoteComparison({ rfqId, navigate, goBack }: Props) {
         )}
       </div>
 
-      {/* Comparison Table */}
-      <div className="comparison-container scroll-hint" style={{ marginTop: 8 }}>
-        <table className="comparison-table">
-          <thead>
-            <tr>
-              <th className="row-label"></th>
-              {quotes.map((q) => (
-                <th key={q.id}>{q.supplierName}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {/* Response Time */}
-            <tr>
-              <td className="row-label">Response Time</td>
-              {quotes.map((q) => (
-                <td key={q.id}>{q.responseTimeHours.toFixed(1)}h</td>
-              ))}
-            </tr>
+      {/* Supplier Cards */}
+      <div className="comparison-cards" style={{ marginTop: 8 }}>
+        {quotes.map((q) => {
+          const rate = getSupplierReliability(q.supplierId);
+          const isBestPrice = q.landedTotal === minTotal && quotes.length > 1;
+          const isWorstPrice = q.landedTotal === maxTotal && quotes.length > 1;
+          const isFastest = q.leadTimeDays === minLead && leadTimes.length > 1;
+          const isSlowest = q.leadTimeDays === maxLead && leadTimes.length > 1;
+          const isMostReliable = rate === maxReliability && quotes.length > 1;
 
-            {/* Per-item unit prices */}
-            {Array.from(allSkus).map((sku) => {
-              const prices = quotes.map((q) => {
-                const item = q.items.find((it) => (it.sku || it.name) === sku);
-                return item?.unitPrice || null;
-              });
-              const validPrices = prices.filter((p) => p !== null) as number[];
-              const minPrice = validPrices.length > 0 ? Math.min(...validPrices) : 0;
-              const maxPrice = validPrices.length > 0 ? Math.max(...validPrices) : 0;
+          const winsCount = [isBestPrice, isFastest, isMostReliable].filter(Boolean).length;
+          const isOverallBest = winsCount >= 2;
 
-              const itemName =
-                quotes
-                  .flatMap((q) => q.items)
-                  .find((it) => (it.sku || it.name) === sku)?.name || sku;
+          return (
+            <div className="comparison-card" key={q.id}>
+              <div className="comparison-card-header">
+                <span className="supplier-name">{q.supplierName}</span>
+                {isOverallBest && <span className="card-badge">Best Overall</span>}
+              </div>
 
-              return (
-                <tr key={sku}>
-                  <td className="row-label" style={{ fontSize: 10 }}>
-                    {itemName.length > 25 ? itemName.substring(0, 25) + "..." : itemName}
-                  </td>
-                  {quotes.map((q, i) => {
-                    const item = q.items.find((it) => (it.sku || it.name) === sku);
-                    const price = item?.unitPrice;
-                    const className =
-                      price === minPrice && validPrices.length > 1
-                        ? "best"
-                        : price === maxPrice && validPrices.length > 1
-                        ? "worst"
-                        : "";
-                    return (
-                      <td key={q.id} className={className}>
+              <div className="comparison-card-body">
+                <div className="comparison-row">
+                  <span className="row-label">Response Time</span>
+                  <span className="row-value">{q.responseTimeHours.toFixed(1)}h</span>
+                </div>
+
+                {Array.from(allSkus).map((sku) => {
+                  const item = q.items.find((it) => (it.sku || it.name) === sku);
+                  const price = item?.unitPrice;
+                  const allPrices = quotes
+                    .map((oq) => oq.items.find((it) => (it.sku || it.name) === sku)?.unitPrice ?? null)
+                    .filter((p) => p !== null) as number[];
+                  const minP = allPrices.length > 0 ? Math.min(...allPrices) : 0;
+                  const maxP = allPrices.length > 0 ? Math.max(...allPrices) : 0;
+                  const cls =
+                    price === minP && allPrices.length > 1
+                      ? "best"
+                      : price === maxP && allPrices.length > 1
+                      ? "worst"
+                      : "";
+
+                  const itemName =
+                    quotes.flatMap((oq) => oq.items).find((it) => (it.sku || it.name) === sku)?.name || sku;
+
+                  return (
+                    <div className="comparison-row" key={sku}>
+                      <span className="row-label">{itemName}</span>
+                      <span className={`row-value ${cls}`}>
                         {price != null ? `£${price.toFixed(2)}` : "—"}
-                      </td>
-                    );
-                  })}
-                </tr>
-              );
-            })}
+                      </span>
+                    </div>
+                  );
+                })}
 
-            {/* Subtotal */}
-            <tr>
-              <td className="row-label" style={{ fontWeight: 600 }}>Subtotal</td>
-              {quotes.map((q) => (
-                <td key={q.id}>£{q.subtotal.toFixed(2)}</td>
-              ))}
-            </tr>
+                <div className="comparison-row">
+                  <span className="row-label">Subtotal</span>
+                  <span className="row-value">£{q.subtotal.toFixed(2)}</span>
+                </div>
 
-            {/* Delivery */}
-            <tr>
-              <td className="row-label">Delivery</td>
-              {quotes.map((q) => (
-                <td key={q.id}>
-                  {q.deliveryCost === 0 ? "Free" : `£${q.deliveryCost.toFixed(2)}`}
-                </td>
-              ))}
-            </tr>
+                <div className="comparison-row">
+                  <span className="row-label">Delivery</span>
+                  <span className="row-value">
+                    {q.deliveryCost === 0 ? "Free" : `£${q.deliveryCost.toFixed(2)}`}
+                  </span>
+                </div>
 
-            {/* Landed Total */}
-            <tr>
-              <td className="row-label" style={{ fontWeight: 600 }}>Landed Total</td>
-              {quotes.map((q) => (
-                <td
-                  key={q.id}
-                  className={
-                    q.landedTotal === minTotal && quotes.length > 1
-                      ? "best"
-                      : q.landedTotal === maxTotal && quotes.length > 1
-                      ? "worst"
-                      : ""
-                  }
-                  style={{ fontWeight: 600 }}
-                >
-                  £{q.landedTotal.toFixed(2)}
-                </td>
-              ))}
-            </tr>
+                <div className="comparison-row separator highlight">
+                  <span className="row-label">Landed Total</span>
+                  <span className={`row-value ${isBestPrice ? "best" : isWorstPrice ? "worst" : ""}`}>
+                    £{q.landedTotal.toFixed(2)}
+                  </span>
+                </div>
 
-            {/* Lead Time */}
-            <tr>
-              <td className="row-label">Lead Time</td>
-              {quotes.map((q) => (
-                <td
-                  key={q.id}
-                  className={
-                    q.leadTimeDays === minLead && leadTimes.length > 1
-                      ? "best"
-                      : q.leadTimeDays === maxLead && leadTimes.length > 1
-                      ? "worst"
-                      : ""
-                  }
-                >
-                  {q.leadTimeDays}d
-                </td>
-              ))}
-            </tr>
+                <div className="comparison-row">
+                  <span className="row-label">Lead Time</span>
+                  <span className={`row-value ${isFastest ? "best" : isSlowest ? "worst" : ""}`}>
+                    {q.leadTimeDays}d
+                  </span>
+                </div>
 
-            {/* Payment Terms */}
-            <tr>
-              <td className="row-label">Payment</td>
-              {quotes.map((q) => (
-                <td key={q.id}>{q.paymentTerms || "—"}</td>
-              ))}
-            </tr>
+                <div className="comparison-row">
+                  <span className="row-label">Payment</span>
+                  <span className="row-value">{q.paymentTerms || "—"}</span>
+                </div>
 
-            {/* Validity */}
-            <tr>
-              <td className="row-label">Valid For</td>
-              {quotes.map((q) => (
-                <td key={q.id}>{q.validity || "—"}</td>
-              ))}
-            </tr>
+                <div className="comparison-row">
+                  <span className="row-label">Valid For</span>
+                  <span className="row-value">{q.validity || "—"}</span>
+                </div>
 
-            {/* On-Time Rate */}
-            <tr>
-              <td className="row-label">On-Time Rate</td>
-              {quotes.map((q) => {
-                const rate = getSupplierReliability(q.supplierId);
-                return (
-                  <td
-                    key={q.id}
-                    className={rate === maxReliability && quotes.length > 1 ? "best" : ""}
-                  >
+                <div className="comparison-row">
+                  <span className="row-label">On-Time Rate</span>
+                  <span className={`row-value ${isMostReliable ? "best" : ""}`}>
                     {rate}%
-                  </td>
-                );
-              })}
-            </tr>
+                  </span>
+                </div>
+              </div>
 
-            {/* Award buttons */}
-            <tr>
-              <td className="row-label"></td>
-              {quotes.map((q) => (
-                <td key={q.id} style={{ padding: 8 }}>
-                  <button
-                    className="btn btn-accent btn-sm btn-block"
-                    onClick={() =>
-                      navigate({
-                        name: "award-order",
-                        rfqId,
-                        supplierId: q.supplierId,
-                      })
-                    }
-                  >
-                    Award
-                  </button>
-                </td>
-              ))}
-            </tr>
-          </tbody>
-        </table>
+              <div className="comparison-card-footer">
+                <button
+                  className="btn btn-accent btn-sm btn-block"
+                  onClick={() =>
+                    navigate({
+                      name: "award-order",
+                      rfqId,
+                      supplierId: q.supplierId,
+                    })
+                  }
+                >
+                  Award
+                </button>
+              </div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

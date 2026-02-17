@@ -118,7 +118,7 @@ export default function AwardOrder({ rfqId, supplierId, navigate, goBack }: Prop
         <div className="section" style={{ textAlign: "center" }}>
           <div style={{ fontSize: 40, marginBottom: 12 }}>✓</div>
           <div className="section-heading">Purchase Order Sent</div>
-          <p style={{ color: "var(--grey-600)", marginBottom: 16 }}>
+          <p style={{ color: "var(--text-secondary)", marginBottom: 16 }}>
             PO sent to {quote?.supplierName}.
             {notifyOthers && " Unsuccessful suppliers have been notified."}
           </p>
@@ -216,7 +216,7 @@ export default function AwardOrder({ rfqId, supplierId, navigate, goBack }: Prop
               {quote.deliveryCost === 0 ? "Free" : `£${quote.deliveryCost.toFixed(2)}`}
             </span>
           </div>
-          <div className="detail-row" style={{ borderTop: "1px solid var(--grey-200)", paddingTop: 8, marginTop: 4 }}>
+          <div className="detail-row" style={{ borderTop: "1px solid var(--border)", paddingTop: 8, marginTop: 4 }}>
             <span className="detail-label" style={{ fontWeight: 600, fontSize: 13 }}>Total</span>
             <span className="detail-value" style={{ fontSize: 15, color: "var(--primary)" }}>
               £{(total + quote.deliveryCost).toFixed(2)}

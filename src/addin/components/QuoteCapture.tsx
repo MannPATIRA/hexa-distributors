@@ -175,7 +175,7 @@ export default function QuoteCapture({
         <div className="section" style={{ textAlign: "center" }}>
           <div style={{ fontSize: 40, marginBottom: 12 }}>✓</div>
           <div className="section-heading">Quote Saved</div>
-          <p style={{ color: "var(--grey-600)", marginBottom: 16 }}>
+          <p style={{ color: "var(--text-secondary)", marginBottom: 16 }}>
             Quote from {suppliers.find((s) => s.id === selectedSupplierId)?.name} has been captured.
           </p>
           <button
@@ -368,7 +368,7 @@ export default function QuoteCapture({
               {deliveryCost === 0 ? "Free" : `£${deliveryCost.toFixed(2)}`}
             </span>
           </div>
-          <div className="detail-row" style={{ borderTop: "1px solid var(--grey-200)", paddingTop: 8, marginTop: 4 }}>
+          <div className="detail-row" style={{ borderTop: "1px solid var(--border)", paddingTop: 8, marginTop: 4 }}>
             <span className="detail-label" style={{ fontWeight: 600 }}>Landed Total</span>
             <span className="detail-value" style={{ fontSize: 14 }}>
               £{(subtotal + deliveryCost).toFixed(2)}
@@ -389,7 +389,7 @@ export default function QuoteCapture({
         {/* Email Body Preview */}
         {emailBody && (
           <details style={{ marginTop: 16 }}>
-            <summary style={{ fontSize: 12, color: "var(--grey-500)", cursor: "pointer" }}>
+            <summary style={{ fontSize: 12, color: "var(--text-muted)", cursor: "pointer" }}>
               View original email text
             </summary>
             <div className="email-preview" style={{ marginTop: 8 }}>

@@ -55,7 +55,7 @@ export default function Settings({ navigate, goBack }: Props) {
 
       <div className="section">
         <div className="section-heading">Account Connections</div>
-        <p style={{ fontSize: 12, color: "var(--grey-500)", marginBottom: 16 }}>
+        <p style={{ fontSize: 12, color: "var(--text-muted)", marginBottom: 16 }}>
           Connect both Microsoft accounts to enable email sending. The buyer account sends RFQs and POs. The supplier sim account sends simulated replies.
         </p>
 
@@ -64,7 +64,7 @@ export default function Settings({ navigate, goBack }: Props) {
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <div>
               <div style={{ fontWeight: 600, fontSize: 13 }}>Buyer Account</div>
-              <div style={{ fontSize: 11, color: "var(--grey-500)", marginTop: 2 }}>
+              <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 2 }}>
                 Sends RFQ emails and purchase orders
               </div>
             </div>
@@ -90,7 +90,7 @@ export default function Settings({ navigate, goBack }: Props) {
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <div>
               <div style={{ fontWeight: 600, fontSize: 13 }}>Supplier Sim Account</div>
-              <div style={{ fontSize: 11, color: "var(--grey-500)", marginTop: 2 }}>
+              <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 2 }}>
                 Sends simulated supplier reply emails
               </div>
             </div>
@@ -126,10 +126,10 @@ export default function Settings({ navigate, goBack }: Props) {
           <div style={{
             marginTop: 16,
             padding: 12,
-            background: "var(--warning-light)",
+            background: "var(--warning-bg)",
             borderRadius: "var(--radius-md)",
             fontSize: 12,
-            color: "var(--grey-700)",
+            color: "var(--text-secondary)",
           }}>
             <strong>Setup required:</strong> Connect both accounts before sending RFQs.
             A popup window will open for Microsoft sign-in. After signing in, return here
@@ -141,7 +141,7 @@ export default function Settings({ navigate, goBack }: Props) {
           <div style={{
             marginTop: 16,
             padding: 12,
-            background: "var(--success-light)",
+            background: "var(--success-bg)",
             borderRadius: "var(--radius-md)",
             fontSize: 12,
             color: "var(--success)",
@@ -151,7 +151,7 @@ export default function Settings({ navigate, goBack }: Props) {
         )}
       </div>
 
-      <div className="section" style={{ borderTop: "1px solid var(--grey-200)" }}>
+      <div className="section" style={{ borderTop: "1px solid var(--border)" }}>
         <div className="section-heading">About</div>
         <div className="detail-card">
           <div className="detail-row">

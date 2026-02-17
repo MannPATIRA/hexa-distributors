@@ -201,11 +201,11 @@ export default function RFQTracker({ rfqId, navigate, goBack }: Props) {
                       {getSupplierName(ss.supplierId)}
                     </div>
                     <div className={`status-icon ${effectiveStatus}`}>
-                      {effectiveStatus === "responded" && "✅ Responded"}
+                      {effectiveStatus === "responded" && "Responded"}
                       {effectiveStatus === "pending" && "⏳ Pending"}
                       {effectiveStatus === "no-response" && "❌ No Response"}
                       {ss.respondedAt && (
-                        <span style={{ marginLeft: 4, fontSize: 10, color: "var(--grey-500)" }}>
+                        <span style={{ marginLeft: 4, fontSize: 10, color: "var(--text-muted)" }}>
                           {new Date(ss.respondedAt).toLocaleTimeString("en-GB", {
                             hour: "2-digit",
                             minute: "2-digit",
@@ -220,9 +220,10 @@ export default function RFQTracker({ rfqId, navigate, goBack }: Props) {
                         className="btn btn-sm btn-outline"
                         onClick={() =>
                           navigate({
-                            name: "quote-comparison",
+                            name: "quote-detail",
                             rfqId: rfq.id,
-                          })
+                            supplierId: ss.supplierId,
+                          } as any)
                         }
                       >
                         View
@@ -254,7 +255,7 @@ export default function RFQTracker({ rfqId, navigate, goBack }: Props) {
                   </div>
                 </div>
                 {ss.reminderSentAt && (
-                  <div style={{ fontSize: 10, color: "var(--grey-500)", marginTop: 4 }}>
+                  <div style={{ fontSize: 10, color: "var(--text-muted)", marginTop: 4 }}>
                     Reminder sent {new Date(ss.reminderSentAt).toLocaleDateString("en-GB")}
                   </div>
                 )}
@@ -275,7 +276,7 @@ export default function RFQTracker({ rfqId, navigate, goBack }: Props) {
             </button>
           )}
           {responded >= 1 && (capturedQuoteCounts[rfq.id] || 0) < 2 && (
-            <div style={{ fontSize: 11, color: "var(--grey-500)", textAlign: "center", marginTop: 12 }}>
+            <div style={{ fontSize: 11, color: "var(--text-muted)", textAlign: "center", marginTop: 12 }}>
               Open supplier reply emails to capture quotes
               {(capturedQuoteCounts[rfq.id] || 0) > 0 && ` (${capturedQuoteCounts[rfq.id]} of ${responded} captured)`}
             </div>
@@ -321,7 +322,7 @@ export default function RFQTracker({ rfqId, navigate, goBack }: Props) {
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                   <div>
                     <div style={{ fontWeight: 600 }}>{rfq.referenceNumber}</div>
-                    <div style={{ fontSize: 11, color: "var(--grey-500)" }}>
+                    <div style={{ fontSize: 11, color: "var(--text-muted)" }}>
                       {rfq.items.length} item{rfq.items.length !== 1 ? "s" : ""} ·
                       {" "}{rfq.suppliers.length} suppliers
                     </div>
@@ -330,7 +331,7 @@ export default function RFQTracker({ rfqId, navigate, goBack }: Props) {
                     <div className={`badge ${responded === rfq.suppliers.length ? "badge-success" : responded > 0 ? "badge-warning" : "badge-grey"}`}>
                       {responded}/{rfq.suppliers.length} replied
                     </div>
-                    <div style={{ fontSize: 10, color: "var(--grey-500)", marginTop: 2 }}>
+                    <div style={{ fontSize: 10, color: "var(--text-muted)", marginTop: 2 }}>
                       {new Date(rfq.createdAt).toLocaleDateString("en-GB")}
                     </div>
                   </div>
